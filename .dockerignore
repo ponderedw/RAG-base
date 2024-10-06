@@ -1,0 +1,2 @@
+# TODO: Consider using a script that appends .gitignore to .dockerignore
+.env

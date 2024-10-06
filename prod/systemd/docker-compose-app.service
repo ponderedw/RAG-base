@@ -1,0 +1,15 @@
+[Unit]
+Description=Docker Compose Application Service
+Requires=docker.service
+After=docker.service
+
+[Service]
+WorkingDirectory=/home/ubuntu/source
+ExecStart=/usr/bin/docker compose -f /home/ubuntu/source/docker-compose.yml -f /home/ubuntu/source/docker-compose.prod.yml up --force-recreate --build -d
+ExecStop=/usr/bin/docker compose down
+Type=oneshot
+RemainAfterExit=yes
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target

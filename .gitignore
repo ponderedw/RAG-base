@@ -1,0 +1,21 @@
+__pycache__/
+
+cookies.tmp.txt
+cookies.tmp.*.txt
+
+# Personal secrets
+.env
+
+# Notebook checkpoints
+.ipynb_checkpoints
+
+# Ignore all files in the data directory, except for the .gitkeep file.
+data/*
+!data/.gitkeep
+
+# Milvus
+milvus/volumes
+milvus/embedEtcd.yaml
+milvus/user.yaml
+milvus/milvus_demo.db
+milvus/.milvus_demo.db.lock

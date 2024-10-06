@@ -1,0 +1,27 @@
+---
+
+services:
+
+  # jupyter needs the data from the s3 bucket mounted.
+  jupyter:
+    volumes:
+      - /mnt/s3bucket:/home/jovyan/work/data
+
+  # FastAPI runs in production mode.
+  fastapi:
+    environment:
+      - ENV=production
+    command: ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers"]
+
+  # Nginx is available only in production.
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes:
+      - ./prod/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - fastapi
+    restart: always

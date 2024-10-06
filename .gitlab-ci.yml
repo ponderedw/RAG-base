@@ -1,0 +1,18 @@
+deploy:
+  stage: deploy
+  script:
+    - echo "$SSH_PRIVATE_KEY_BASE64" | base64 -d > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+
+    # Disable strict host key checking
+    - echo -e "ssh-keyscan -H ec2-3-87-6-34.compute-1.amazonaws.com >> ~/.ssh/known_hosts"
+
+    # SSH into the server and deploy
+    - ssh ubuntu@ec2-3-87-6-34.compute-1.amazonaws.com \
+      'cd /home/ubuntu/source \
+        && git pull origin main \
+        && docker-compose down \
+        && docker-compose up --build -d \
+      '

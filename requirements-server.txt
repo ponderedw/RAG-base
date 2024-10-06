@@ -1,0 +1,6 @@
+-r requirements-base.txt
+
+fastapi[standard]>=0.112.0,<0.113.0
+pydantic-settings==2.4.0
+aiosqlite==0.20.0
+itsdangerous==2.2.0

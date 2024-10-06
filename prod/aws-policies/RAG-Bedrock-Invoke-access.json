@@ -1,0 +1,17 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "RAGBedrockAccess",
+			"Effect": "Allow",
+			"Action": [
+				"bedrock:InvokeModel",
+				"bedrock:InvokeModelWithResponseStream"
+			],
+			"Resource": [
+				"arn:aws:bedrock:*::foundation-model/*",
+				"arn:aws:bedrock:*:649187217676:provisioned-model/*"
+			]
+		}
+	]
+}
