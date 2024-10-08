@@ -16,11 +16,11 @@ class Database(metaclass=Singleton):
 
         super().__init__()
 
-        self.user = 'postgres'
+        self.user = os.environ.get('POSTGRES_USERNAME', 'postgres')
         self.password = os.environ['POSTGRES_PASSWORD']
-        self.host = 'postgres'
-        self.port = 5432
-        self.database = 'chat_db'
+        self.host = os.environ.get('POSTGRES_HOSTNAME', 'postgres')
+        self.port = os.environ.get('POSTGRES_PORT', 5432)
+        self.database = os.environ.get('POSTGRES_DATABASE_NAME', 'chat_db')
 
         self.uri = f'postgres://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}'
 
