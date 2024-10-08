@@ -12,15 +12,14 @@ class StoreTextRequest(BaseModel):
     """The request to store the embeddings for the given text in the Milvus database."""
 
     text: str
-    source: str
-    url: str
-    filename: str
+    source_name: str
+    source_id: str
     modified_at: datetime
 
 
 class DeleteTextRequest(BaseModel):
     """The request to delete the embeddings for the given text from the Milvus database."""
-    url: str
+    source_id: str
 
 
 @embeddings_router.delete('/text/delete')
@@ -30,7 +29,7 @@ async def delete_text(
 ) -> dict:
     """Delete the embeddings for the given text from the Milvus database."""
     
-    res = await Milvus().delete_embeddings(delete_text_request.url)
+    res = await Milvus().delete_embeddings(delete_text_request.source_id)
     return {
         'status': 'success',
         'details': res,
@@ -47,9 +46,8 @@ async def store_text(
     ids = await Milvus().split_and_store_text(
         store_text_request.text,
         metadata={
-            'source': store_text_request.source,
-            'url': store_text_request.url,
-            'filename': store_text_request.filename,
+            'source_name': store_text_request.source_name,
+            'source_id': store_text_request.source_id,
             'modified_at': store_text_request.modified_at.isoformat(),
         }
     )

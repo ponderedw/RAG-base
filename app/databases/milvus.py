@@ -59,7 +59,7 @@ class Milvus(LangMilvus):
         # Store the embeddings for each chunk.
         return self.add_documents(documents=splits)
 
-    async def delete_embeddings(self, url: str) -> str:
+    async def delete_embeddings(self, source_id: str) -> str:
         """Delete the embeddings for the given text from the Milvus database."""
         
         # The loop is needed because the deletion doesn't always happen and
@@ -67,7 +67,7 @@ class Milvus(LangMilvus):
         # TODO: Consider trying a different consistency level. Or using `.release`, `.flush`, etc.
         res = []
         for i in range(10):
-            res.append(str(self.delete(expr=f'url == "{url}"')))
+            res.append(str(self.delete(expr=f'source_id == "{source_id}"')))
             if 'delete count: 0' in res[-1]:
                 break
 

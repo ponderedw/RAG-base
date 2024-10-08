@@ -138,8 +138,8 @@ async def chat(
                         # Retrieval is done. Let the client know the results.
                         print(event['data']['output'], flush=True)
                         yield json.dumps(process_message(StreamMessage(msg_type='tool', content=json.dumps([{
-                            'filename': document.metadata['filename'],
-                            'url': document.metadata['url'],
+                            'source_name': document.metadata['source_name'],
+                            'source_id': document.metadata['source_id'],
                             'modified': document.metadata['modified_at'],
                             'content': document.page_content,
                         } for document in event['data']['output']])))) + '\n'

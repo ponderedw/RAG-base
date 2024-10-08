@@ -19,7 +19,7 @@ from app.databases.postgres import Database
 
 PROMPT_MESSAGE = """When answering the user question using data from the tools, be sure to:
 1. First list the sources you are going to use in your answer. The list of sources should be of the form:
-[1] - url | filename | modified_at | (index of document in the retriever's answer (e.g. 0, 4): <The quote that being used>
+[1] - source_id | source_name | modified_at | (index of document in the retriever's answer (e.g. 0, 4): <The quote that being used>
 [2] - ...
 2. Add a separator '\n\n+++++++++++++\n\n'
 3. Write a concise answer based only on the sources and quotes you listed above.
@@ -53,11 +53,10 @@ async def get_llm_agent():
         # To see available `variables`, check the `retriever.invoke('some query')[0].metadata.keys()`
         document_prompt=PromptTemplate(
             template_format='jinja2',
-            input_variables=['url', 'filename', 'modified_at', 'page_content'],
-            # template='Source:\n{source}\nContent:\n{page_content}',
+            input_variables=['source_id', 'source_name', 'modified_at', 'page_content'],
             template='{'
-                '"filename": "{{filename}}", '
-                '"url": "{{url}}", '
+                '"source_name": "{{source_name}}", '  # E.g. filename, article title, etc.
+                '"source_id": "{{source_id}}", '      # E.g. URL, document ID, etc.
                 '"modified": "{{modified_at}}", '
                 '"content": "{{page_content|replace(\'"\', \'""\')}}"'
             '}',
