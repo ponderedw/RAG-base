@@ -28,8 +28,7 @@ If you don't know the answer, answer that you don't know based on the informatio
 If you're not sure, state that you're not sure."""
 
 
-# TODO: Think about how to cache this function. Maybe use a pool of agents?
-# @lru_cache
+# TODO: Consider using a pool of agents for better performance, or some other caching mechanism.
 @contextlib.asynccontextmanager
 async def get_llm_agent():
     

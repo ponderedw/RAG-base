@@ -31,7 +31,7 @@ async def delete_text(
     
     res = await Milvus().delete_embeddings(delete_text_request.source_id)
     return {
-        'status': 'success',
+        'status': 'success' if res['error_count'] == 0 else 'error',
         'details': res,
     }
 

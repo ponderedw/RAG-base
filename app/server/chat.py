@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage, ToolMessage, AIMessage, AIMessageChunk
 
 from app.server.llm import get_llm_agent
+from app.utils.config import Config
 
 
 chat_router = APIRouter()
@@ -148,13 +149,12 @@ async def chat(
                         # If the message is a tool call, just print a debug message.
                         if event['data']['chunk'].content[0]['type'] in ('tool_use', 'tool_call'):
                             print('Stream.tool_calls:', event['data']['chunk'].tool_calls, flush=True)
-                        else:
+                        elif Config.get_deploy_env() != 'LOCAL':
                             # The agent's response. A few tokens at a time.
                             yield json.dumps(process_message(event['data']['chunk'])) + '\n'
-
-                            # Replace the above with this, if you're working with `curl` and would like
-                            # to see the output in a more readable format.
-                            # yield process_message(event['data']['chunk'])['content']
+                        else:
+                            # When working locally, especially with `curl` it's easier to see the output in this more readable format.
+                            yield process_message(event['data']['chunk'])['content'] + ' | '
                     case \
                         'on_chat_model_start' | 'on_chain_start' | 'on_chain_end' | 'on_chat_model_stream' \
                         | 'on_chat_model_end' | 'on_chain_stream' | 'on_tool_start' | 'on_tool_end':

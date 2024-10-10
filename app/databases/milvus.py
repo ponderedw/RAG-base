@@ -59,16 +59,25 @@ class Milvus(LangMilvus):
         # Store the embeddings for each chunk.
         return self.add_documents(documents=splits)
 
-    async def delete_embeddings(self, source_id: str) -> str:
-        """Delete the embeddings for the given text from the Milvus database."""
+    async def delete_embeddings(self, source_id: str, should_compact: bool = False) -> dict:
+        """Delete the embeddings for the given text from the Milvus database.
         
-        # The loop is needed because the deletion doesn't always happen and
-        # even if we wait a while, we don't see it in the database.
-        # TODO: Consider trying a different consistency level. Or using `.release`, `.flush`, etc.
-        res = []
-        for i in range(10):
-            res.append(str(self.delete(expr=f'source_id == "{source_id}"')))
-            if 'delete count: 0' in res[-1]:
-                break
+        :param source_id: The ID of the text to delete.
+        :param should_compact: Whether to compact the database after deletion. If not compacted, data
+            may still be present in the database, until Milvus decides to compact it.
+            That said, compacting on every deletion may result in slower performance.
+        """
+        
+        res = self.delete(expr=f'source_id == "{source_id}"', consistency_level='Strong')
+        if should_compact:
+            self.col.compact()
 
-        return '\n'.join(res)
+        return {
+            'insert_count': int(res.insert_count),
+            'delete_count': int(res.delete_count),
+            'upsert_count': int(res.upsert_count),
+            'timestamp': float(res.timestamp),
+            'success_count': int(res.succ_count),
+            'error_count': int(res.err_count),
+            'error_index': str(res.err_index),
+        }

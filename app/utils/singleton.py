@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 class Singleton(type):
     """A metaclass that implements the singleton pattern.
 
-    This metaclass ensures that only one instance of a class is created and that the instance is reused for all subsequent calls.
+    This metaclass ensures that only one(*) instance of a class is created and that the instance is reused for all subsequent calls.
     
     The instance is refreshed every `MAX_INSTANCE_TTL` seconds.
     
