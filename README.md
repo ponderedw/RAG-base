@@ -1,9 +1,9 @@
-# My RAG App
+# RAG 
 
 ## Installation
 
 1. Create a Python virtual environment with `Python 3.11`. I use conda, but you can use whatever you prefer:
-    1. `conda -n my-rag-app python=3.11`
+    1. `conda create -n my-rag-app python=3.11`
     1. `conda activate my-rag-app`
 1. Install the requirements inside the environment: `pip install -r requirements.txt`
 1. Add the files you'd like to index to the `data` directory.
