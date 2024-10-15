@@ -1,0 +1,16 @@
+---
+
+volumes:
+    chroma-data:
+
+services:
+  chromadb:
+    container_name: chromadb
+    image: chromadb/chroma:0.5.13
+    volumes:
+      - chroma-data:/chroma/chroma
+    env_file:
+      - .env
+    ports:
+      - "6000:8000"
+    restart: always
