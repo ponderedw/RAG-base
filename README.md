@@ -75,8 +75,8 @@ It also relies on having access to Amazon Bedrock models, which are used as the 
     1. `cp .env-template .env`
     1. Fill it in with the necessary credentials and settings.
     1. For the initial run, the most important credentials are the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. Other credentials are temporary and must be replaced with the correct ones when the application is deployed.
-    1. You should also change the `FAST_API_ACCESS_SECRET_TOKEN` to a new random secret.
-1. Build and run the project via Docker: `docker compose -f docker-compose.yml up -d --build`
+    1. You should also change the `FAST_API_ACCESS_SECRET_TOKEN` to a new random secret. For this Readme we're assuming it's changed to '123'.
+1. Build and run the project via Docker: `docker compose -f docker-compose.yml -f docker-compose.milvus.yml up -d --build`
 1. After running docker, you should have multiple services running.
     1. You can check the status of the services with `docker ps -a`.
     1. Make sure the `rag-skeleton-fastapi` and `milvus-standalone` containers are running.

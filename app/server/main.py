@@ -9,6 +9,7 @@ from app.server.general import general_router
 from app.server.chat import chat_router
 from app.server.embeddings import embeddings_router
 from app.databases.postgres import Database
+from app.utils.config import Config
 
 
 @asynccontextmanager
@@ -27,14 +28,14 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.environ['SECRET_KEY'],
-    https_only=os.environ['DEPLOY_ENV'] == 'PROD',
+    https_only=Config.get_deploy_env() == 'PROD',
 )
 
 @app.middleware("http")
 async def check_token_middleware(request: Request, call_next):
     """Allow only requests with the correct token."""
     token = request.headers.get("x-access-token")
-    if token != os.environ['FAST_API_ACCESS_SECRET_TOKEN']:
+    if (Config.get_deploy_env() != 'LOCAL') and (token != os.environ['FAST_API_ACCESS_SECRET_TOKEN']):
         return JSONResponse(status_code=403, content={'reason': 'Invalid or missing token'})
     
     response = await call_next(request)

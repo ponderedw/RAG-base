@@ -13,7 +13,7 @@ from langchain_aws import ChatBedrock
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts.prompt import PromptTemplate
 
-from app.databases.milvus import Milvus
+from app.databases.vector import VectorDB
 from app.databases.postgres import Database
 
 
@@ -28,13 +28,12 @@ If you don't know the answer, answer that you don't know based on the informatio
 If you're not sure, state that you're not sure."""
 
 
-# TODO: Think about how to cache this function. Maybe use a pool of agents?
-# @lru_cache
+# TODO: Consider using a pool of agents for better performance, or some other caching mechanism.
 @contextlib.asynccontextmanager
 async def get_llm_agent():
     
     # The Retriever in the RAG model.
-    retriever = Milvus().as_retriever(search_kwargs={'k': 8})
+    retriever = VectorDB().as_retriever(search_kwargs={'k': 8})
 
     # The ChatBot LLM
     llm = ChatBedrock(

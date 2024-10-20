@@ -3,11 +3,14 @@ langchain==0.2.14
 langchain-aws==0.1.17
 langchain_community==0.2.12
 langchain-core==0.2.35
-langchain-milvus==0.1.4
 langchain-text-splitters==0.2.2
 langgraph==0.2.14
 langgraph-checkpoint-postgres==1.0.3
 langgraph-checkpoint-sqlite==1.0.0
+
+# Vector DB. Technically, you need only one of these, depending on which DB you choose to use.
+langchain-chroma==0.1.4
+langchain-milvus==0.1.4
 
 # Fix bug, see: https://github.com/pypa/setuptools/issues/4508
 # https://github.com/pypa/setuptools/issues/4476#issuecomment-2236430489
