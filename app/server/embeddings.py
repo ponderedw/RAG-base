@@ -2,14 +2,14 @@ from datetime import datetime
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
-from app.databases.milvus import Milvus
+from app.databases.vector import VectorDB
 
 
 embeddings_router = APIRouter()
 
 
 class StoreTextRequest(BaseModel):
-    """The request to store the embeddings for the given text in the Milvus database."""
+    """The request to store the embeddings for the given text in the vector database."""
 
     text: str
     source_name: str
@@ -18,7 +18,7 @@ class StoreTextRequest(BaseModel):
 
 
 class DeleteTextRequest(BaseModel):
-    """The request to delete the embeddings for the given text from the Milvus database."""
+    """The request to delete the embeddings for the given text from the vector database."""
     source_id: str
 
 
@@ -27,9 +27,9 @@ async def delete_text(
     request: Request,
     delete_text_request: DeleteTextRequest,
 ) -> dict:
-    """Delete the embeddings for the given text from the Milvus database."""
+    """Delete the embeddings for the given text from the vector database."""
     
-    res = await Milvus().delete_embeddings(delete_text_request.source_id)
+    res = await VectorDB().delete_embeddings(delete_text_request.source_id)
     return {
         'status': 'success' if res['error_count'] == 0 else 'error',
         'details': res,
@@ -41,9 +41,9 @@ async def store_text(
     request: Request,
     store_text_request: StoreTextRequest,
 ) -> dict:
-    """Store the embeddings for the given text in the Milvus database."""
+    """Store the embeddings for the given text in the vector database."""
     
-    ids = await Milvus().split_and_store_text(
+    ids = await VectorDB().split_and_store_text(
         store_text_request.text,
         metadata={
             'source_name': store_text_request.source_name,
