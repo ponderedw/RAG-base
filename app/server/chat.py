@@ -150,11 +150,11 @@ async def chat(
                             print('Stream.tool_calls:', event['data']['chunk'].tool_calls, flush=True)
                         else:
                             # The agent's response. A few tokens at a time.
-                            yield json.dumps(process_message(event['data']['chunk'])) + '\n'
+                            # yield json.dumps(process_message(event['data']['chunk'])) + '\n'
 
                             # Replace the above with this, if you're working with `curl` and would like
                             # to see the output in a more readable format.
-                            # yield process_message(event['data']['chunk'])['content']
+                            yield process_message(event['data']['chunk'])['content']
                     case \
                         'on_chat_model_start' | 'on_chain_start' | 'on_chain_end' | 'on_chat_model_stream' \
                         | 'on_chat_model_end' | 'on_chain_stream' | 'on_tool_start' | 'on_tool_end':
