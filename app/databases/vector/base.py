@@ -1,10 +1,10 @@
 import abc
-import os
 
 from langchain.schema import Document
-from langchain_aws import BedrockEmbeddings
 from langchain_core.embeddings import Embeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from app.models import EmbeddingsModel
 
 
 class BaseVectorDatabase(abc.ABC):
@@ -14,10 +14,7 @@ class BaseVectorDatabase(abc.ABC):
         """Get the embedding function for the vector database."""
 
         # TODO: Add more options such as `Voyage`, `Gemini`.
-        return BedrockEmbeddings(
-            model_id=os.environ.get('EMBEDDING_MODEL', 'amazon.titan-embed-text-v2:0'),
-            region_name='us-east-1',
-        )
+        return EmbeddingsModel()
     
     async def split_and_store_text(
         self,
