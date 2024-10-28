@@ -6,7 +6,7 @@ This repo provides a base skeleton for building a [(RAG)](https://en.wikipedia.o
 
 This allows easy setup of a web application that allows you to input large amounts of custom data for use with your LLM, operated via a web API.
 
-## What's included
+## What's Included
 
 The project allows you to:
 1. Locally deploy (via Docker) a vector database.
@@ -18,8 +18,7 @@ The project allows you to:
 
 This repo is built by Hipposys Ltd., and serves as a starting off point for new RAG projects for our clients. It is open sourced both for educational purposes, and to serve as a base for commercial projects.
 
-The current skeleton contains support for using Amazon Bedrock as the LLM provider, and Milvus or Chroma as the vector database. Additional LLM providers and vector databases are planned to be added in the near future.
-
+The current skeleton supports Amazon Bedrock or OpenAI as the LLM provider, and Milvus or Chroma as the vector database. Additional LLM providers and vector databases are planned to be added in the near future.
 
 ## Features
 
@@ -27,14 +26,14 @@ The current skeleton contains support for using Amazon Bedrock as the LLM provid
     -  Adding and removing custom data.
     - Sending and receiving chat messages.
         - This supports streaming of the response from the LLM.
-- Using Amazon Bedrock as an LLM provider.
+- Using Amazon Bedrock or OpenAI as an LLM provider.
 - Milvus and Chroma Vector database integrations.
 - Built on top of Langchain.
 - Chat history is stored in a local Postgres, and is also accesable via the API.
 
 ## Prerequisites
 
-Currently, you must have an Amazon Bedrock account to use this project.
+Currently, you must have an Amazon Bedrock or OpenAI account to use this project.
 
 You'll also need Docker for the local deploy.
 
@@ -48,18 +47,7 @@ We work with clients on a variety of AI engineering and Data Enngineering projec
 
 The local deployment relies on having Docker installed.
 
-It also relies on having access to Amazon Bedrock models, which are used as the LLM provider of the application.
-
-### Setting up Bedrock
-1. Make sure that you have a Bedrock model available in your AWS account:
-    1. Log into the AWS console.
-    1. Navigate to the `Amazon Bedrock` service.
-    1. In the left navigration pane: `Bedrock configurations` -> `Model access`.
-    1. We currently use `Claude 3.5 Sonnet` for inference and `Titan Text Embeddings V2` for embeddings.
-        1. Note that this may change, you can either change it yourself, or see that someone else has changed it in the code.
-        1. Note that these models may not be available in all regions, we currently use `us-east-1` (N. Virginia).
-    1. If these models are not enabled, you'll have to ask for access. The access should be granted immediately upon request.
-    1. You'll need to generate access credentials for your Amazon account for use in the application.
+It also relies on having access to Amazon Bedrock or OpenAI models, which are used as the LLM provider of the application.
 
 ### Local Deployment
 
@@ -75,7 +63,10 @@ It also relies on having access to Amazon Bedrock models, which are used as the 
 1. Create an `.env` file:
     1. `cp .env-template .env`
     1. Fill it in with the necessary credentials and settings.
-    1. For the initial run, the most important credentials are `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. Other credentials may be suitable for local development, but should be replaced when deploying to a remote server (e.g. `prod`) for additional security.
+    1. For the initial local deplyment, the most important credentials are the ones defining your LLM provider:
+        1. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` if you'll be using `AWS`.
+        1. `OPENAI_API_KEY` if you'll be using OpenAI.
+        1. Other credentials may be suitable for local development, but should be replaced when deploying to a remote server (e.g. `prod`) for additional security.
 1. Build and run the project via Docker: `docker compose -f docker-compose.yml -f docker-compose.milvus.yml up -d --build`
 1. After running docker, you should have multiple services running.
     1. You can check the status of the services with `docker ps -a`.
@@ -83,6 +74,27 @@ It also relies on having access to Amazon Bedrock models, which are used as the 
 1. Go to `localhost:8080/hello-world` to see an `{"hello": "world"}` response from the server.
 1. You now have a running instance of the RAG application.
 
+
+### Setting Up Bedrock
+
+1. Make sure that you have a Bedrock model available in your AWS account:
+    1. Log into the AWS console.
+    1. Navigate to the `Amazon Bedrock` service.
+    1. In the left navigration pane: `Bedrock configurations` -> `Model access`.
+    1. We currently use `Claude 3.5 Sonnet` for inference and `Titan Text Embeddings V2` for embeddings.
+        1. Note that this may change, you can either change it yourself, or see that someone else has changed it in the code.
+        1. Note that these models may not be available in all regions, we currently use `us-east-1` (N. Virginia).
+    1. If these models are not enabled, you'll have to ask for access. The access should be granted immediately upon request.
+    1. You'll need to generate access credentials for your Amazon account for use in the application.
+
+### Setting Up OpenAI
+
+1. In your `.env` file:
+    1. Add your [`OPENAI_API_KEY`](https://platform.openai.com/api-keys).
+    1. Set the `LLM_MODEL_ID` to an OpenAI-compatible model (e.g., `gpt-3.5-turbo`).
+    1. Comment out any unused environment variables (e.g., AWS-related variables).
+1. In `app/models/__init__.py`, update the code to use OpenAI models instead of the default Bedrock models. Make sure to adjust both the model for inference and the one for embeddings.
+1. Finally, restart Docker Compose to apply the `.env` changes.
 
 ## Example Usage
 
@@ -179,8 +191,28 @@ curl \
     http://localhost:8080/embeddings/text/delete
 ```
 
+## Other Configuration
 
-## Deploying to production
+### Using a Different Vector DB
+
+Currently, the project supports Chroma and Milvus, with plans to add more vector databases in the future. By default, Milvus is used, but switching to another supported database is simple:
+
+1. Open `app/databases/vector/__init__.py` and update the `VectorDB` assignment. For example, to switch to Chroma:
+    ```python
+    from app.databases.vector.chroma import Chroma
+    # from app.databases.vector.milvus import Milvus
+
+    VectorDB = Chroma
+    ```
+1. When running `docker compose`, use the `docker-compose` configuration file that matches the database you’ve chosen. For example, to use `Chroma`:
+    ```bash
+    docker compose \
+        -f docker-compose.yml \
+        -f docker-compose.chromadb.yml \
+        up -d --build
+    ```
+
+## Deploying to Production
 
 A more complete guide to deploying to production will be added later.
 
