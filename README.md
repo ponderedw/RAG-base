@@ -63,7 +63,10 @@ It also relies on having access to Amazon Bedrock or OpenAI models, which are us
 1. Create an `.env` file:
     1. `cp .env-template .env`
     1. Fill it in with the necessary credentials and settings.
-    1. For the initial run, the most important credentials are `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. Other credentials may be suitable for local development, but should be replaced when deploying to a remote server (e.g. `prod`) for additional security.
+    1. For the initial local deplyment, the most important credentials are the ones defining your LLM provider:
+        1. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` if you'll be using `AWS`.
+        1. `OPENAI_API_KEY` if you'll be using OpenAI.
+        1. Other credentials may be suitable for local development, but should be replaced when deploying to a remote server (e.g. `prod`) for additional security.
 1. Build and run the project via Docker: `docker compose -f docker-compose.yml -f docker-compose.milvus.yml up -d --build`
 1. After running docker, you should have multiple services running.
     1. You can check the status of the services with `docker ps -a`.
@@ -87,8 +90,8 @@ It also relies on having access to Amazon Bedrock or OpenAI models, which are us
 ### Setting Up OpenAI
 
 1. In your `.env` file:
-    1. Add your [`OPENAI_API_KEY`](https://platform.openai.com/api-keys)
-    1. Set the `LLM_MODEL_ID` to an OpenAI-compatible model (e.g., `gpt-3.5-turbo`)
+    1. Add your [`OPENAI_API_KEY`](https://platform.openai.com/api-keys).
+    1. Set the `LLM_MODEL_ID` to an OpenAI-compatible model (e.g., `gpt-3.5-turbo`).
     1. Comment out any unused environment variables (e.g., AWS-related variables).
 1. In `app/models/__init__.py`, update the code to use OpenAI models instead of the default Bedrock models. Make sure to adjust both the model for inference and the one for embeddings.
 1. Finally, restart Docker Compose to apply the `.env` changes.
