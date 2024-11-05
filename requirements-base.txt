@@ -1,5 +1,6 @@
 docx2txt==0.8
 langchain==0.2.14
+langchain-aws==0.1.17
 langchain_community==0.2.12
 langchain-core==0.2.35
 langchain-text-splitters==0.2.2
@@ -11,11 +12,9 @@ langgraph-checkpoint-sqlite==1.0.0
 langchain-chroma==0.1.4
 langchain-milvus==0.1.4
 
-# AI Model. Technically, you need only one of these, depending on which model you choose to use.
-langchain-aws==0.1.17
-langchain_openai==0.1.17
-
 # Fix bug, see: https://github.com/pypa/setuptools/issues/4508
 # https://github.com/pypa/setuptools/issues/4476#issuecomment-2236430489
 # Investigate if this is still needed, once upgrading to Python 3.12.
 backports.tarfile==1.2.0
+typer==0.12.5
+pypdf==5.1.0
