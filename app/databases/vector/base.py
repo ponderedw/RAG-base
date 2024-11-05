@@ -1,4 +1,5 @@
 import abc
+import os
 
 from langchain.schema import Document
 from langchain_core.embeddings import Embeddings
@@ -9,6 +10,11 @@ from app.models import EmbeddingsModel
 
 class BaseVectorDatabase(abc.ABC):
     """Base class for vector databases."""
+
+    def get_default_collection_name(self) -> str:
+        """Get the default collection name for the vector database."""
+
+        return os.environ.get('DEFAULT_VECTOR_DB_COLLECTION_NAME', 'MyRAGApp')
 
     def get_embedding_function(self) -> Embeddings:
         """Get the embedding function for the vector database."""
@@ -34,6 +40,11 @@ class BaseVectorDatabase(abc.ABC):
         return self.add_documents(documents=splits)
     
     @abc.abstractmethod
+    def __init__(self, collection_name: str = None, **kwargs):
+        """Initialize the vector database."""
+        pass
+
+    @abc.abstractmethod
     async def delete_embeddings(self, source_id: str) -> dict:
         """Delete the embeddings for the given text from the vector database.
         
@@ -43,4 +54,9 @@ class BaseVectorDatabase(abc.ABC):
 
         :return: A dictionary with the results of the deletion.
         """
+        pass
+
+    @abc.abstractmethod
+    async def drop_collection(self, collection_name: str) -> None:
+        """Drop the collection from the vector database."""
         pass
