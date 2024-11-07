@@ -85,6 +85,6 @@ class Chroma(LangChroma, BaseVectorDatabase):
             'error_count': 0,
         }
 
-    async def drop_collection(self, collection_name: str) -> None:
+    async def drop_collection(self, collection_name: str, ignore_non_exist: bool = False) -> None:
         """Drop the collection from the Chroma database."""
         self.client.delete_collection(collection_name)

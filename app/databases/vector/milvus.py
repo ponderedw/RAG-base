@@ -46,7 +46,7 @@ class Milvus(LangMilvus, BaseVectorDatabase):
             That said, compacting on every deletion may result in slower performance.
         """
         
-        res = self.delete(expr=f'source_id == "{source_id}"', consistency_level='Strong')
+        res = self.delete(expr=f'source_id == "{source_id}"')
         if should_compact:
             self.col.compact()
 
@@ -60,6 +60,12 @@ class Milvus(LangMilvus, BaseVectorDatabase):
             'error_index': str(res.err_index),
         }
     
-    async def drop_collection(self, collection_name: str) -> None:
+    async def drop_collection(self, collection_name: str, ignore_non_exist: bool = False) -> None:
         """Drop the collection from the Milvus database."""
-        self.col.drop_collection(collection_name)
+
+        assert collection_name == self.collection_name, 'Can drop only the current collection.'
+
+        if ignore_non_exist and self.col is None:
+            return
+
+        self.col.drop()

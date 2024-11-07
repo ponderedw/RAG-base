@@ -57,6 +57,10 @@ class BaseVectorDatabase(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def drop_collection(self, collection_name: str) -> None:
-        """Drop the collection from the vector database."""
+    async def drop_collection(self, collection_name: str, ignore_non_exist: bool = False) -> None:
+        """Drop the collection from the vector database.
+        
+        :param collection_name: The name of the collection to drop.
+        :param ignore_non_exist: If `True`, no error will be raised if the collection does not exist.
+        """
         pass
