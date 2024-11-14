@@ -7,6 +7,8 @@ from app.models.inference.bedrock_model import ChatBedrock
 # from app.models.inference.openai_model import ChatOpenAI
 
 
-# ChatModel = ChatBedrock
 ChatModel = ChatBedrock
 EmbeddingsModel = BedrockEmbeddings
+
+# ChatModel = ChatOpenAI
+# EmbeddingsModel = OpenAIEmbeddings

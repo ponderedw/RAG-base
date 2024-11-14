@@ -6,7 +6,7 @@ volumes:
 services:
   chromadb:
     container_name: chromadb
-    image: chromadb/chroma:0.5.13
+    image: chromadb/chroma:0.5.17
     volumes:
       - chroma-data:/chroma/chroma
     env_file:

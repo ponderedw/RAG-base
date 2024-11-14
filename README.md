@@ -212,6 +212,22 @@ Currently, the project supports Chroma and Milvus, with plans to add more vector
         up -d --build
     ```
 
+## Testing
+
+To run the tests, use the following command:
+
+```bash
+docker exec -it fastapi bash -c "pytest app/"
+```
+
+For faster test execution, at the expense of cleaner output, you can add the `-n` option to parallelize tests across multiple workers:
+
+```bash
+docker exec -it fastapi bash -c "pytest -n 5 app/"
+```
+
+In this example, 5 parallel workers will execute the tests.
+
 ## Deploying to Production
 
 A more complete guide to deploying to production will be added later.

@@ -18,7 +18,7 @@ class ChatRequest(BaseModel):
 
 def get_user_chat_config(session_id: str) -> dict:
     """Get the user chat configuration in a format that's compatible with our chat agent."""
-    return {"configurable": {"thread_id": session_id}}
+    return {'configurable': {'thread_id': session_id}}
 
 
 @chat_router.post("/new")

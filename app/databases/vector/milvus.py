@@ -21,9 +21,10 @@ class Milvus(LangMilvus, BaseVectorDatabase):
         }
         # return {'uri': str(Path(__file__).parent.parent.parent / 'milvus' / 'milvus_demo.db')}
     
-    def __init__(self, collection_name: str = 'MyRAGApp', **kwargs):
+    def __init__(self, collection_name: str = None, **kwargs):
         """Initialize the Milvus database for the project."""
 
+        collection_name = collection_name or self.get_default_collection_name()
         default_kwargs = {
             'embedding_function': self.get_embedding_function(),
             'connection_args': self.get_local_connection_args(),
@@ -45,7 +46,7 @@ class Milvus(LangMilvus, BaseVectorDatabase):
             That said, compacting on every deletion may result in slower performance.
         """
         
-        res = self.delete(expr=f'source_id == "{source_id}"', consistency_level='Strong')
+        res = self.delete(expr=f'source_id == "{source_id}"')
         if should_compact:
             self.col.compact()
 
@@ -58,3 +59,13 @@ class Milvus(LangMilvus, BaseVectorDatabase):
             'error_count': int(res.err_count),
             'error_index': str(res.err_index),
         }
+    
+    async def drop_collection(self, collection_name: str, ignore_non_exist: bool = False) -> None:
+        """Drop the collection from the Milvus database."""
+
+        assert collection_name == self.collection_name, 'Can drop only the current collection.'
+
+        if ignore_non_exist and self.col is None:
+            return
+
+        self.col.drop()

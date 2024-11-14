@@ -34,7 +34,7 @@ class Chroma(LangChroma, BaseVectorDatabase):
             ),
         )
     
-    def __init__(self, collection_name: str = 'MyRAGApp', **kwargs):
+    def __init__(self, collection_name: str = None, **kwargs):
         """Initialize a Chroma database client.
         
         The `CHROMA_DB_URI` environment variable should be set to the URI of the Chroma database.
@@ -44,7 +44,7 @@ class Chroma(LangChroma, BaseVectorDatabase):
         - `fs://`: Connect to a local file system database.
         """
 
-        self.collection_name = collection_name
+        self.collection_name = collection_name or self.get_default_collection_name()
         self.client = None
 
         # Parse the connection URI and set the HTTP client or local FS directory, accordingly.
@@ -68,7 +68,7 @@ class Chroma(LangChroma, BaseVectorDatabase):
         }
 
         super().__init__(
-            collection_name=collection_name,
+            collection_name=self.collection_name,
             **(default_kwargs | kwargs),
         )
 
@@ -84,3 +84,7 @@ class Chroma(LangChroma, BaseVectorDatabase):
             'success': True,
             'error_count': 0,
         }
+
+    async def drop_collection(self, collection_name: str, ignore_non_exist: bool = False) -> None:
+        """Drop the collection from the Chroma database."""
+        self.client.delete_collection(collection_name)

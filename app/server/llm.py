@@ -74,7 +74,7 @@ class ChatMessage:
         # Different message types have different structures.
         try:
             content = message.content[0]['text']
-        except (KeyError, TypeError):
+        except (KeyError, TypeError, IndexError):
             content = message.content
 
         return ChatMessage(
@@ -169,6 +169,8 @@ class LLMAgent:
 
     def __init__(self):
         self._agent = None
+        self._llm = None
+        self.retriever_tool_name = 'Internal_Company_Info_Retriever'
         self._checkpointer_ctx = None
 
     async def __aenter__(self) -> 'LLMAgent':
@@ -178,12 +180,12 @@ class LLMAgent:
         retriever = VectorDB().as_retriever(search_kwargs={'k': 8})
 
         # The ChatBot LLM
-        llm = ChatModel()
+        self._llm = ChatModel()
 
         # Retriever tool, for the R in RAG.
         tool = create_retriever_tool(
             retriever,
-            'Internal_Company_Info_Retriever',
+            self.retriever_tool_name,
             'Searches and retrieves data from the corpus of documents that the company has',
 
             # Controls how the returned results will look when passed to the LLM.
@@ -208,7 +210,7 @@ class LLMAgent:
 
         # Create the agent itself.
         self._agent = create_react_agent(
-            llm,
+            self._llm,
             tools,
             checkpointer=checkpointer,
             state_modifier=SystemMessage(PROMPT_MESSAGE),
@@ -219,6 +221,7 @@ class LLMAgent:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Close the agent and the checkpointer."""
         await self._checkpointer_ctx.__aexit__(exc_type, exc_val, exc_tb) 
+        self._llm = None
         self._agent = None
         self._checkpointer_ctx = None
 
