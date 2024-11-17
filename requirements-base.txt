@@ -19,3 +19,5 @@ langchain_openai==0.1.17
 # https://github.com/pypa/setuptools/issues/4476#issuecomment-2236430489
 # Investigate if this is still needed, once upgrading to Python 3.12.
 backports.tarfile==1.2.0
+typer==0.12.5
+pypdf==5.1.0
