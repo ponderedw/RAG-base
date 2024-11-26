@@ -1,10 +1,11 @@
 import abc
 import os
 
-from langchain.schema import Document
 from langchain_core.embeddings import Embeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.schema import Document
 
+from app.indexing.text.base import BaseTextIndexing
+from app.indexing.metadata import DocumentMetadata
 from app.models import EmbeddingsModel
 
 
@@ -22,27 +23,34 @@ class BaseVectorDatabase(abc.ABC):
         # TODO: Add more options such as `Voyage`, `Gemini`.
         return EmbeddingsModel()
     
-    async def split_and_store_text(
-        self,
-        text: str,
-        metadata: dict,
-        chunk_size: int = 1_000,
-        chunk_overlap: int = 200,
-    ) -> list[int]:
+    async def split_and_store_text(self, text: str | list[Document], metadata: DocumentMetadata) -> list[int]:
         """Store the embeddings for the given text in the vector database."""
 
         # Split the text into chunks.
-        docs = [Document(page_content=text, metadata=metadata)]
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-        splits = text_splitter.split_documents(docs)
+        splits = self.split_strategy.split(text=text, metadata=metadata)
 
         # Store the embeddings for each chunk.
         return self.add_documents(documents=splits)
     
-    @abc.abstractmethod
-    def __init__(self, collection_name: str = None, **kwargs):
+    def __init__(
+            self,
+            split_strategy: BaseTextIndexing = None,
+            collection_name: str = None,
+            **kwargs,
+        ):
         """Initialize the vector database."""
-        pass
+
+        self.split_strategy = split_strategy or BaseTextIndexing()
+        self.collection_name = collection_name or self.get_default_collection_name()
+
+        default_kwargs = {
+            'embedding_function': self.get_embedding_function(),
+        }
+
+        super().__init__(
+            collection_name=self.collection_name,
+            **(default_kwargs | kwargs),
+        )
 
     @abc.abstractmethod
     async def delete_embeddings(self, source_id: str) -> dict:

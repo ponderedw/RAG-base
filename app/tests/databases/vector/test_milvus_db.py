@@ -42,7 +42,7 @@ class TestMilvusDB(BaseVectorDBTests):
 
         # Add and delete a document to make sure the collection exists.
         await vector_db.split_and_store_text(entry.text, entry.metadata)
-        await vector_db.delete_embeddings(entry.metadata['source_id'])
+        await vector_db.delete_embeddings(entry.metadata.source_id)
 
     async def test_delete_not_current_collection(self, collection_name: str):
         """Should fail if trying to delete a collection that is not the current one."""

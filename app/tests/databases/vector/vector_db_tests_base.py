@@ -1,13 +1,16 @@
 import abc
-from app.databases.vector.base import BaseVectorDatabase
 import pytest
 import uuid
 
 from collections import namedtuple
 from dataclasses import dataclass
+from datetime import datetime
 from typing import AsyncGenerator, Type
 from unittest.mock import patch
 
+from app.databases.vector.base import BaseVectorDatabase
+from app.indexing.metadata import DocumentMetadata
+from app.indexing.text.base import BaseTextIndexing
 from app.tests.test_utils.string_utils import regularize_spaces
 
 
@@ -50,6 +53,22 @@ class BaseVectorDBTests(abc.ABC):
         """
         pass
 
+    @pytest.fixture
+    def entries(self) -> list[DocumentMetadata]:
+        """Return a list of metadata for the test."""
+        metadatas = [
+            DocumentMetadata(source_id='19291', source_name='test1', modified_at=datetime(2021, 1, 1)),
+            DocumentMetadata(source_id='223344', source_name='test2', modified_at=datetime(2021, 2, 2)),
+            DocumentMetadata(source_id='123456', source_name='test3', modified_at=datetime(2021, 3, 3)),
+            DocumentMetadata(source_id='987654', source_name='test4', modified_at=datetime(2021, 4, 4)),
+        ]
+        return [
+            InsertTestParameters('This is a test.', metadatas[0], 0),
+            InsertTestParameters('The quick brown fox jumps over the lazy dog.', metadatas[1], 0),
+            InsertTestParameters('lorum ipsum dolor sit amet.', metadatas[2], 0),
+            InsertTestParameters('Attention is all you need', metadatas[3], 0),
+        ]
+
     @pytest.fixture(autouse=True)
     async def collection_name(self) -> AsyncGenerator[str, None]:
         """Return the collection name for the test."""
@@ -69,7 +88,7 @@ class BaseVectorDBTests(abc.ABC):
         # Simple case of short text.
         InsertTestParameters(
             text='This is a simple text to test the vector database.',
-            metadata={'id': 1, 'name': 'test1'},
+            metadata=DocumentMetadata(source_id=1, source_name='test1', modified_at=datetime(2021, 1, 1)),
             expected_entries=1,
         ),
 
@@ -84,7 +103,7 @@ class BaseVectorDBTests(abc.ABC):
 
             Last Paragraph. The quick brown fox jumps over the lazy dog. The end.
             """,
-            metadata={'id': 2, 'name': 'test2'},
+            metadata=DocumentMetadata(source_id=2, source_name='test2', modified_at=datetime(2021, 2, 2)),
             expected_entries=3,
         ),
     ])
@@ -92,12 +111,12 @@ class BaseVectorDBTests(abc.ABC):
         """Test the insertion of text into the vector database."""
 
         # Setup
-        vector_db = self.VECTOR_DB_CLS()
+        vector_db = self.VECTOR_DB_CLS(split_strategy=BaseTextIndexing(chunk_size=200, chunk_overlap=20))
         epsilon = 0.001
         chunks_separator = '\n\n'
 
         # Run
-        ids = await vector_db.split_and_store_text(text, metadata, chunk_size=200, chunk_overlap=20)
+        ids = await vector_db.split_and_store_text(text, metadata)
 
         # Validate - the number of entries is as expected.
         assert len(ids) == expected_entries
@@ -105,7 +124,7 @@ class BaseVectorDBTests(abc.ABC):
         # Validate - regular `get` returns only the documents we entered into the DB.
         res = self.get_all_documents()
         assert res.ids == ids
-        assert res.metadatas == [metadata] * len(ids)
+        assert res.metadatas == [metadata.to_dict()] * len(ids)
         assert regularize_spaces(' '.join(res.texts)) == regularize_spaces(text)
 
         # Validate - Similarity search with `text` returns the same document with perfect similarity score.
@@ -133,16 +152,10 @@ class BaseVectorDBTests(abc.ABC):
         # Delete a non-existent entry.
         (0, 1),
     ])
-    async def test_vector_db_delete(self, number_of_entries: int, delete_idx: int):
+    async def test_vector_db_delete(self, entries: list[InsertTestParameters], number_of_entries: int, delete_idx: int):
         """Test the deletion of entries from the vector database."""
 
         # Setup
-        entries = [
-            InsertTestParameters('This is a test.', {'source_id': '19291'}, 0),
-            InsertTestParameters('The quick brown fox jumps over the lazy dog.', {'source_id': '223344'}, 0),
-            InsertTestParameters('lorum ipsum dolor sit amet.', {'source_id': '123456'}, 0),
-            InsertTestParameters('Attention is all you need', {'source_id': '987654'}, 0),
-        ]
         ids = []
         vector_db = self.VECTOR_DB_CLS()
         await self.create_collection_if_not_exists(vector_db, entries[0])
@@ -153,23 +166,17 @@ class BaseVectorDBTests(abc.ABC):
                 
         # Run
         entry_to_delete = entries[delete_idx]
-        await vector_db.delete_embeddings(entry_to_delete.metadata['source_id'])
+        await vector_db.delete_embeddings(entry_to_delete.metadata.source_id)
 
         # Validate
         db_content = self.get_all_documents()
         assert entry_to_delete.metadata not in db_content.metadatas
         assert db_content.ids == ids[:delete_idx] + ids[delete_idx + 1:]
 
-    async def test_vector_db_drop_collection(self, collection_name: str):
+    async def test_vector_db_drop_collection(self, entries: list[InsertTestParameters], collection_name: str):
         """Test the dropping of a collection from the vector database."""
         
         # Setup
-        entries = [
-            InsertTestParameters('This is a test.', {'source_id': '19291'}, 0),
-            InsertTestParameters('The quick brown fox jumps over the lazy dog.', {'source_id': '223344'}, 0),
-            InsertTestParameters('lorum ipsum dolor sit amet.', {'source_id': '123456'}, 0),
-            InsertTestParameters('Attention is all you need', {'source_id': '987654'}, 0),
-        ]
         vector_db = self.VECTOR_DB_CLS()
         
         # Setup - Insert the entries.
@@ -202,7 +209,8 @@ class BaseVectorDBTests(abc.ABC):
 
             # with patch.object(vector_db, 'add_documents'):
             # Run - `split_and_store_text` calls `EmbeddingsModelClassMock` to get embeddings.
-            await vector_db.split_and_store_text('This is a test u4i2o1.', {})
+            metadata = DocumentMetadata(source_id='1', source_name='test', modified_at=datetime(2021, 1, 1))
+            await vector_db.split_and_store_text('This is a test u4i2o1.', metadata)
 
         # Validate - `EmbeddingsModelClassMock` was called during `split_and_store_text`.
         EmbeddingsModelClassMock.return_value.embed_documents.assert_called_once_with(['This is a test u4i2o1.'])
