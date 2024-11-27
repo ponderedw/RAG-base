@@ -1,3 +1,5 @@
+import json
+
 from app.databases.vector.chroma import Chroma
 from app.tests.databases.vector.vector_db_tests_base import AllDocuments, BaseVectorDBTests
 
@@ -11,6 +13,9 @@ class TestChromaDB(BaseVectorDBTests):
 
         return AllDocuments(
             ids=res['ids'],
-            metadatas=res['metadatas'],
+            metadatas=[{
+                k: (v if k != 'payload' else json.loads(v))
+                for k, v in m.items()
+            } for m in res['metadatas']],
             texts=res['documents'],
         )

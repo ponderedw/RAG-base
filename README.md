@@ -233,3 +233,15 @@ In this example, 5 parallel workers will execute the tests.
 A more complete guide to deploying to production will be added later.
 
 For now, you can check the notes in `prod/README.md` and the other files in that directory.
+
+## Running Jupyter Notebook
+
+When starting the project locally (following the instructions above), a Jupyter Lab server will automatically start. The server configuration is defined in `docker-compose.yml`.
+
+To access Jupyter Lab, open http://localhost:8890 in your web browser. On your first visit, you’ll need to provide a login token. You can retrieve the token from the logs of the `jupyter` Docker container by running:
+
+```bash
+docker logs jupyter 2>&1 | grep token= | tail -n 1 | grep -E '=.+$'
+```
+
+After logging in, navigate to `/work/notebooks` to access the existing notebooks or create new ones.

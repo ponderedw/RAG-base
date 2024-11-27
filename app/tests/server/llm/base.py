@@ -1,12 +1,14 @@
 import json
-import uuid
 import pytest
+import uuid
 
+from datetime import datetime
 from pathlib import Path
 from typing import AsyncGenerator, Generator, Type
 from unittest.mock import patch
 
 from app.databases.vector.base import BaseVectorDatabase
+from app.indexing.metadata import DocumentMetadata
 
 
 class BaseTestChatAgent:
@@ -70,7 +72,10 @@ class BaseTestChatAgent:
                 await vector_db.split_and_store_text(
                     data['text'],
                     # Metadata is all the fields in the JSON except for 'text'.
-                    metadata={k: v for k, v in data.items() if k != 'text'},
+                    metadata=DocumentMetadata(**{
+                        k: (v if k != 'modified_at' else datetime.fromisoformat(v))
+                        for k, v in data.items() if k != 'text'
+                    }),
                 )
 
         try:

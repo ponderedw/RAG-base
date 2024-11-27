@@ -5,7 +5,7 @@ from langchain_milvus.vectorstores import Milvus as LangMilvus
 from app.databases.vector.base import BaseVectorDatabase
 
 
-class Milvus(LangMilvus, BaseVectorDatabase):
+class Milvus(BaseVectorDatabase, LangMilvus):
     """A wrapper for a Milvus database for the project."""
 
     @staticmethod
@@ -21,21 +21,15 @@ class Milvus(LangMilvus, BaseVectorDatabase):
         }
         # return {'uri': str(Path(__file__).parent.parent.parent / 'milvus' / 'milvus_demo.db')}
     
-    def __init__(self, collection_name: str = None, **kwargs):
+    def __init__(self, **kwargs):
         """Initialize the Milvus database for the project."""
 
-        collection_name = collection_name or self.get_default_collection_name()
         default_kwargs = {
-            'embedding_function': self.get_embedding_function(),
             'connection_args': self.get_local_connection_args(),
             'consistency_level': 'Strong',
             'auto_id': True,
         }
-
-        super().__init__(
-            collection_name=collection_name,
-            **(default_kwargs | kwargs),
-        )
+        super().__init__(**(default_kwargs | kwargs))
 
     async def delete_embeddings(self, source_id: str, should_compact: bool = False) -> dict:
         """Delete the embeddings for the given text from the Milvus database.

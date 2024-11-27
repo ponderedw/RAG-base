@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 
@@ -9,6 +9,7 @@ class DocumentMetadata:
     source_id: str
     source_name: str
     modified_at: datetime
+    payload: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         """Converts the metadata to a vector-database compatible dictionary."""
@@ -16,4 +17,5 @@ class DocumentMetadata:
             'source_id': self.source_id,
             'source_name': self.source_name,
             'modified_at': self.modified_at.isoformat(),
+            'payload': self.payload,
         }

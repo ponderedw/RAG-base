@@ -1,13 +1,15 @@
 import chromadb
 import os
 
+from langchain.schema import Document
 from langchain_chroma import Chroma as LangChroma
+from typing import Iterable, Optional
 from urllib.parse import urlparse
 
 from app.databases.vector.base import BaseVectorDatabase
 
 
-class Chroma(LangChroma, BaseVectorDatabase):
+class Chroma(BaseVectorDatabase, LangChroma):
 
     FILE_SYSTEM_SCHEMA = 'fs://'
     SERVER_SCHEMA = 'http://'
@@ -34,7 +36,7 @@ class Chroma(LangChroma, BaseVectorDatabase):
             ),
         )
     
-    def __init__(self, collection_name: str = None, **kwargs):
+    def __init__(self, drop_old: Optional[bool] = False, **kwargs):
         """Initialize a Chroma database client.
         
         The `CHROMA_DB_URI` environment variable should be set to the URI of the Chroma database.
@@ -44,7 +46,6 @@ class Chroma(LangChroma, BaseVectorDatabase):
         - `fs://`: Connect to a local file system database.
         """
 
-        self.collection_name = collection_name or self.get_default_collection_name()
         self.client = None
 
         # Parse the connection URI and set the HTTP client or local FS directory, accordingly.
@@ -63,14 +64,13 @@ class Chroma(LangChroma, BaseVectorDatabase):
             raise ValueError(f'Invalid CHROMA_DB_URI Schema: {chroma_db_uri}')
 
         kwargs['client'] = self.client
-        default_kwargs = {
-            'embedding_function': self.get_embedding_function(),
-        }
 
-        super().__init__(
-            collection_name=self.collection_name,
-            **(default_kwargs | kwargs),
-        )
+        # Drop the existing collection, if requested and exists.
+        if drop_old:
+            collection_name = kwargs.get('collection_name', self.get_default_collection_name())
+            self._drop_collection(collection_name, ignore_non_exist=True)
+
+        super().__init__(**kwargs)
 
     async def delete_embeddings(self, source_id: str) -> dict:
         """Delete the embeddings for the given text from the Chroma database."""
@@ -85,6 +85,35 @@ class Chroma(LangChroma, BaseVectorDatabase):
             'error_count': 0,
         }
 
+    def _drop_collection(self, collection_name: str, ignore_non_exist: bool = False) -> None:
+        """Drop the collection from the Chroma database."""
+        try:
+            self.client.delete_collection(collection_name)
+        except chromadb.errors.InvalidArgumentError as e:
+            # Silence the error if the collection doesn't exist and we're asked to ignore it.
+            if ignore_non_exist and f'Collection {collection_name} does not exist' in str(e):
+                pass
+            else:
+                raise e
+
     async def drop_collection(self, collection_name: str, ignore_non_exist: bool = False) -> None:
         """Drop the collection from the Chroma database."""
-        self.client.delete_collection(collection_name)
+        self._drop_collection(collection_name, ignore_non_exist)
+
+    def add_documents(self, documents: Iterable[Document]) -> list[str]:
+        """Override the general `add_documents` in order to convert `metadata.payload` to string.
+        
+        The problem is that `Chroma` doesn't accept dictionary metadata values.
+        """
+
+        def payload_to_str(doc: Document) -> Document:
+            """Convert the `payload` field in the metadata to a string."""
+            doc.metadata['payload'] = str(doc.metadata.get('payload', {}))
+            return doc
+
+        # Convert the `payload` field in the metadata to a string.
+        documents = (payload_to_str(doc) for doc in documents)
+
+        # Call the parent method.
+        # We Convert to `list` because `add_documents` doesn't support a generator.
+        return super().add_documents(list(documents))
