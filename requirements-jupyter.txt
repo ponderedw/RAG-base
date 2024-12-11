@@ -1,7 +1,7 @@
 -r requirements-base.txt
 
 # If running from notebooks:
-jupyterlab==4.2.4
+jupyterlab==4.3.3
 
 # For tqdm to work:
 jupyterlab_widgets<2.0.0
