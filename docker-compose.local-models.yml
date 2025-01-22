@@ -1,0 +1,37 @@
+---
+volumes:
+    ollama:
+
+services:
+  local_model:
+    container_name: local_model
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
+      args:
+        LLM: llama3.2:1b
+        EMBEDDING_MODEL: mxbai-embed-large
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama:/root/.ollama
+
+  ollama-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: ollama-webui
+    volumes:
+      - ./ollama/ollama-webui:/app/backend/data
+    depends_on:
+      - local_model
+    ports:
+      - 8082:8080
+    environment:
+      - OLLAMA_BASE_URLS=http://local_model:11434
+      - ENV=dev
+      - WEBUI_AUTH=False
+      - WEBUI_NAME=valiantlynx AI
+      - WEBUI_URL=http://localhost:8080
+      - WEBUI_SECRET_KEY=t0p-s3cr3t

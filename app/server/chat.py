@@ -80,7 +80,7 @@ async def chat(
                 if chat_msg.type == LLMEventType.CHAT_CHUNK and Config.get_deploy_env() == 'LOCAL':
                     # When working locally, especially with `curl`,
                     # it's easier to see the output in this more readable format.
-                    yield chat_msg.content + ' | '
+                    yield chat_msg.content + ''
                 else:
                     yield json.dumps(chat_msg.to_dict()) + '\n'
 
