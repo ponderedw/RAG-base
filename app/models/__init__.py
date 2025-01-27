@@ -1,7 +1,8 @@
 # Bedrock
+import os
+
 from app.models.embeddings.bedrock_embeddings import BedrockEmbeddings, CustomOllamaEmbeddings
 from app.models.inference.bedrock_model import ChatBedrock, CustomOllamaOllama
-import os
 
 # OpenAI
 # from app.models.embeddings.openai_embeddings import OpenAIEmbeddings
