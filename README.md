@@ -68,7 +68,11 @@ It also relies on having access to Amazon Bedrock or OpenAI models, which are us
         1. `OPENAI_API_KEY` if you'll be using OpenAI.
         1. Other credentials may be suitable for local development, but should be replaced when deploying to a remote server (e.g. `prod`) for additional security.
     1. If you want to use a local LLM or embedding model, uncomment `LOCAL_LLM` and `LOCAL_EMBEDDING_MODEL`, then specify a model available at [Ollama's model search](https://ollama.com/search). **Note:** The selected LLM must support tools for compatibility with this architecture. If you modify the default values, remember to update the `LLM` and `EMBEDDING_MODEL` arguments in `docker-compose.local-models.yml`.
-1. Build and run the project via Docker: `docker compose -f docker-compose.yml -f docker-compose.milvus.yml up -d --build`, if you are using local models, run: `docker compose -f docker-compose.yml -f docker-compose.milvus.yml -f docker-compose.local-models.yml up --build`. To enable the UI for chat and Milvus DB, use: `docker compose -f docker-compose.yml -f docker-compose.milvus.yml -f docker-compose.ui.yml up --build`
+1. Build and run the project via Docker: The base command is `docker compose -f docker-compose.yml up -d --build`. Add one or more of the following compose files, depending on your use-case:
+    1. Milvus: `-f docker-compose.milvus.yml`
+    1. Chroma: `-f docker-compose.chromadb.yml`
+    1. To use local models: `-f docker-compose.local-models.yml`
+    1. To enable the UI for chat and Milvus DB,: `-f docker-compose.ui.yml`
 1. After running docker, you should have multiple services running.
     1. You can check the status of the services with `docker ps -a`.
     1. Make sure the `fastapi`, `postgres` and `milvus-standalone` containers are running.
