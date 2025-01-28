@@ -8,9 +8,9 @@ class ChatOpenAI(BaseChatOpenAI):
 
     def __init__(self, model_id: str = None, **kwargs):
         """Initialize the `ChatOpenAI` with specific configuration."""
-        
+        model_type, model_id_env = os.environ['LLM_MODEL_ID'].split(':', 1)
         default_kwargs = {
-            'model': model_id or os.environ['LLM_MODEL_ID'],
+            'model': model_id or model_id_env,
             'temperature': 0,
         }
 
