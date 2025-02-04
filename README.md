@@ -67,7 +67,12 @@ It also relies on having access to Amazon Bedrock or OpenAI models, which are us
         1. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` if you'll be using `AWS`.
         1. `OPENAI_API_KEY` if you'll be using OpenAI.
         1. Other credentials may be suitable for local development, but should be replaced when deploying to a remote server (e.g. `prod`) for additional security.
-1. Build and run the project via Docker: `docker compose -f docker-compose.yml -f docker-compose.milvus.yml up -d --build`
+    1. If you want to use a local LLM or embedding model, change `LLM_MODEL_ID` and `EMBEDDING_MODEL`, then specify a model available at [Ollama's model search](https://ollama.com/search) with `ollama:` prefix (e.g., `LLM_MODEL_ID='ollama:llama3.2:1b'; EMBEDDING_MODEL='ollama:mxbai-embed-large'`,  ). **Note:** The selected LLM must support tools for compatibility with this architecture. If you modify the default values, remember to update the `LLM` and `EMBEDDING_MODEL` arguments in `docker-compose.local-models.yml`.
+1. Build and run the project via Docker: The base command is `docker compose -f docker-compose.yml up -d --build`. Add one or more of the following compose files, depending on your use-case:
+    1. Milvus: `-f docker-compose.milvus.yml`
+    1. Chroma: `-f docker-compose.chromadb.yml`
+    1. To use local models: `-f docker-compose.local-models.yml`
+    1. To enable the UI for chat and Milvus DB,: `-f docker-compose.ui.yml`
 1. After running docker, you should have multiple services running.
     1. You can check the status of the services with `docker ps -a`.
     1. Make sure the `fastapi`, `postgres` and `milvus-standalone` containers are running.
@@ -91,7 +96,7 @@ It also relies on having access to Amazon Bedrock or OpenAI models, which are us
 
 1. In your `.env` file:
     1. Add your [`OPENAI_API_KEY`](https://platform.openai.com/api-keys).
-    1. Set the `LLM_MODEL_ID` to an OpenAI-compatible model (e.g., `gpt-3.5-turbo`).
+    1. Set the `LLM_MODEL_ID` to an OpenAI-compatible model with `openai:` prefix (e.g., `openai:gpt-3.5-turbo`).
     1. Comment out any unused environment variables (e.g., AWS-related variables).
 1. In `app/models/__init__.py`, update the code to use OpenAI models instead of the default Bedrock models. Make sure to adjust both the model for inference and the one for embeddings.
 1. Finally, restart Docker Compose to apply the `.env` changes.

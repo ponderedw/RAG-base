@@ -11,9 +11,10 @@ class OpenAIEmbeddings(BaseOpenAIEmbeddings):
 
     def __init__(self, **kwargs):
         """Initialize the `OpenAIEmbeddings` with specific configuration."""
-        
+        model_type_embedding, model_id_embedding = \
+            os.environ.get('EMBEDDING_MODEL', 'openai:text-embedding-3-large').split(':', 1)
         default_kwargs = {
-            'model': os.environ.get('EMBEDDING_MODEL', 'text-embedding-3-large'),
+            'model': model_id_embedding,
             'dimensions': 1024,
         }
 

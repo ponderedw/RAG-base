@@ -19,3 +19,5 @@ milvus/embedEtcd.yaml
 milvus/user.yaml
 milvus/milvus_demo.db
 milvus/.milvus_demo.db.lock
+ollama
+.DS_Store
