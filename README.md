@@ -16,7 +16,7 @@ The project allows you to:
 1. Chat history is stored in a local Postgres, and is also accesable via the API.
 1. The API supports streaming of the response from the LLM.
 
-This repo is built by Hipposys Ltd., and serves as a starting off point for new RAG projects for our clients. It is open sourced both for educational purposes, and to serve as a base for commercial projects.
+This repo is built by Ponder, and serves as a starting off point for new RAG projects for our clients. It is open sourced both for educational purposes, and to serve as a base for commercial projects.
 
 The current skeleton supports Amazon Bedrock or OpenAI as the LLM provider, and Milvus or Chroma as the vector database. Additional LLM providers and vector databases are planned to be added in the near future.
 
@@ -39,7 +39,7 @@ You'll also need Docker for the local deploy.
 
 ## Contact
 
-Looking for help or have questions? Contact us at [contact@hipposys.com](mailto:contact@hipposys.com).
+Looking for help or have questions? Contact us at [contact@ponder.com](mailto:contact@ponder.com).
 
 We work with clients on a variety of AI engineering and Data Enngineering projects.
 
@@ -53,7 +53,7 @@ It also relies on having access to Amazon Bedrock or OpenAI models, which are us
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/hipposys-ltd/rag-app-skeleton.git
+    git clone https://github.com/ponderedw/rag-app-skeleton.git
     ```
 1. Navigate to the project directory:
     ```bash

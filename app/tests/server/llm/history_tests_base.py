@@ -10,7 +10,7 @@ class HistoryTests(BaseTestChatAgent):
 
         # Setup
         agent = LLMAgent()
-        message_1 = 'Hello, my name is Dave and I work at Hipposys.'
+        message_1 = 'Hello, my name is Dave and I work at Ponder.'
         message_2 = "Can you repeat what I've just told you?"
 
         async with agent:

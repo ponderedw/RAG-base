@@ -16,7 +16,7 @@ class BaseRAGTests(BaseTestChatAgent):
 
         # Setup
         agent = LLMAgent()
-        message = 'What do we know about Hipposys? If you cannot find it, please write "00--NO_INFO--00".'
+        message = 'What do we know about Ponder? If you cannot find it, please write "00--NO_INFO--00".'
         chat_messages = []
 
         async with agent:
@@ -38,7 +38,7 @@ class BaseRAGTests(BaseTestChatAgent):
         # Validate
         results = ''.join(msg.content for msg in chat_messages)
         assert 'data and ai engineering consultancy' in results.lower()
-        assert 'About Hipposys' in results
+        assert 'About Ponder' in results
         assert '00--NO_INFO--00' not in results
     
     async def test_stream_events_no_info(self, chat_session: dict):
@@ -70,7 +70,7 @@ class BaseRAGTests(BaseTestChatAgent):
 
         # Setup
         agent = LLMAgent()
-        message = 'What do we know about Hipposys? If you cannot find it, please write "00--NO_INFO--00".'
+        message = 'What do we know about Ponder? If you cannot find it, please write "00--NO_INFO--00".'
         chat_messages = []
 
         # Setup - use an empty collection.
